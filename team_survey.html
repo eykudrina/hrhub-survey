@@ -231,7 +231,7 @@ function showResults() {
 
 async function runAnalysis() {
   try {
-    const resp = await fetch("https://hrhub-survey-production.up.railway.app/analyze", {
+    const resp = await fetch("https://hrhub-survey-production-e84f.up.railway.app/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ answers: answers, company: company })
