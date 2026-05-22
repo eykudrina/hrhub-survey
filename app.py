@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import anthropic
 import os
@@ -15,6 +15,14 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 @app.route("/")
 def index():
     return "HR HUB Survey API is running"
+
+@app.route("/analyze", methods=["OPTIONS"])
+def analyze_options():
+    response = Response()
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
@@ -67,12 +75,16 @@ def analyze():
         for m in result.get("metrics", []):
             msg += f"{m['name']}: {m['score']}/100\n"
         msg += f"\nПриоритет: {result.get('priority_action', '')}"
-        requests.post(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-                     json={"chat_id": TELEGRAM_CHAT_ID, "text": msg[:4000]})
+        requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+            json={"chat_id": TELEGRAM_CHAT_ID, "text": msg[:4000]}
+        )
     except Exception as e:
         print(f"TG error: {e}")
 
-    return jsonify(result)
+    resp = jsonify(result)
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
