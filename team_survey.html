@@ -638,6 +638,663 @@ function showResults() {
 
 async function runAnalysis() {
   const summaryText = buildSummary();
+  const company = new URLSearchParams(window.location.search).get('company') || 'Не указана';
+
+  try {
+    const resp = await fetch("https://hrhub-survey-production.up.railway.app/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        answers: answers,
+        company: company
+      })
+    });
+
+    const parsed = await resp.json();
+    renderAnalysis(parsed);
+
+  } catch(e) {
+    renderFallback();
+  }
+
+  btn.disabled = false;
+  btn.textContent = '⚡ ЗАПУСТИТЬ АНАЛИЗ';
+}ta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Анонимный опрос команды</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Mulish:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --card: #ffffff;
+    --accent: #2d5016;
+    --accent2: #6b9e3a;
+    --text: #1a1a1a;
+    --muted: #7a7a7a;
+    --border: #e8e2d9;
+    --warn: #c0392b;
+    --good: #27ae60;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Mulish', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.5s ease;
+  }
+
+  .header-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  .header p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto 20px;
+  }
+
+  .anon-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #edf7e6;
+    border: 1px solid #c3e6a8;
+    color: var(--good);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 20px;
+  }
+
+  /* Progress */
+  .progress-wrap {
+    margin-bottom: 36px;
+    animation: fadeDown 0.5s ease 0.1s both;
+  }
+
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 32px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .q-number {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent2);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .q-hint {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* Scale */
+  .scale {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .scale-btn {
+    flex: 1;
+    aspect-ratio: 1;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: none;
+    cursor: pointer;
+    font-family: 'Mulish', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scale-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .scale-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(45,80,22,0.25);
+  }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-btn {
+    padding: 14px 18px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: none;
+    cursor: pointer;
+    font-family: 'Mulish', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    text-align: left;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .option-btn:hover { border-color: var(--accent2); background: #f0f7e8; }
+
+  .option-btn.selected {
+    border-color: var(--accent);
+    background: #edf5e3;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Textarea */
+  .q-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+
+  .q-textarea:focus { border-color: var(--accent2); }
+  .q-textarea::placeholder { color: #bbb; }
+
+  /* Nav */
+  .nav {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .btn-back {
+    padding: 14px 24px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: none;
+    font-family: 'Mulish', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-back:hover { border-color: var(--accent2); color: var(--accent); }
+
+  .btn-next {
+    flex: 1;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    font-family: 'Mulish', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-next:hover { background: #3a6b1e; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(45,80,22,0.3); }
+  .btn-next:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Results */
+  .results-screen {
+    display: none;
+    animation: fadeUp 0.5s ease;
+  }
+
+  .results-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .results-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  .results-header p { font-size: 14px; color: var(--muted); }
+
+  .analysis-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+  }
+
+  .analysis-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .metric-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .metric-row:last-child { border-bottom: none; }
+
+  .metric-name { font-size: 14px; font-weight: 500; }
+  .metric-score { font-weight: 700; font-size: 15px; }
+  .score-high   { color: var(--warn); }
+  .score-mid    { color: #e67e22; }
+  .score-low    { color: var(--good); }
+
+  .meter {
+    height: 6px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+
+  .meter-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 1s ease;
+  }
+
+  .fill-warn  { background: var(--warn); }
+  .fill-mid   { background: #e67e22; }
+  .fill-ok    { background: var(--good); }
+
+  .insight-item {
+    padding: 12px 16px;
+    background: var(--bg);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+    border-left: 3px solid var(--accent2);
+  }
+
+  .loading-analysis {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  .loading-analysis p { font-size: 14px; line-height: 1.6; }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-tag">Командный пульс</div>
+    <h1>Как вам работается<br>в команде?</h1>
+    <p id="companyName" style="font-size:13px;color:var(--accent);font-weight:700;margin-bottom:4px"></p>
+    <p>Честные ответы помогут руководителю принять правильные решения. Опрос займёт 3–5 минут.</p>
+    <div class="anon-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Полностью анонимно — имена не собираются
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <span id="progressLabel">Вопрос 1 из 10</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- Survey -->
+  <div id="surveyScreen">
+    <div class="question-card" id="questionCard"></div>
+    <div class="nav">
+      <button class="btn-back" id="btnBack" onclick="prevQ()" style="display:none">← Назад</button>
+      <button class="btn-next" id="btnNext" onclick="nextQ()">Далее →</button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-header">
+      <h2>Спасибо за честность 🙏</h2>
+      <p>Анализирую ответы команды...</p>
+    </div>
+    <div class="analysis-box" id="analysisBox">
+      <div class="loading-analysis">
+        <div class="spinner"></div>
+        <p>Анализирую паттерны<br>и готовлю выводы для руководителя...</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    id: "energy",
+    type: "scale",
+    text: "Как вы оцениваете свою энергию и желание работать последние 2 недели?",
+    hint: "1 — полностью выгорел, 10 — на подъёме",
+    min: "Полностью выгорел", max: "На подъёме"
+  },
+  {
+    id: "clarity",
+    type: "scale",
+    text: "Насколько вам понятны ваши задачи и зоны ответственности?",
+    hint: "1 — полная неразбериха, 10 — всё чётко",
+    min: "Полная неразбериха", max: "Всё чётко"
+  },
+  {
+    id: "overload",
+    type: "options",
+    text: "Как вы оцениваете свою загрузку прямо сейчас?",
+    hint: "",
+    options: [
+      "😴 Недогружен — есть время и силы",
+      "✅ В норме — справляюсь комфортно",
+      "⚡ Немного перегружен, но терпимо",
+      "🔥 Серьёзный перегруз, не успеваю",
+      "💥 На пределе, срочно нужна помощь"
+    ]
+  },
+  {
+    id: "communication",
+    type: "scale",
+    text: "Насколько комфортна коммуникация внутри команды?",
+    hint: "1 — постоянные конфликты и напряжение, 10 — открыто и уважительно",
+    min: "Конфликты и напряжение", max: "Открыто и уважительно"
+  },
+  {
+    id: "recognition",
+    type: "options",
+    text: "Чувствуете ли вы, что ваш вклад замечают и ценят?",
+    hint: "",
+    options: [
+      "✅ Да, регулярно",
+      "🤷 Иногда, но хотелось бы чаще",
+      "❌ Практически никогда",
+      "😶 Мне это не важно"
+    ]
+  },
+  {
+    id: "obstacles",
+    type: "options",
+    text: "Что больше всего мешает вам работать эффективно?",
+    hint: "Выберите главное",
+    options: [
+      "😵 Непонятные задачи и постоянные изменения",
+      "🗣 Конфликты или напряжение в команде",
+      "⏰ Слишком много задач, не хватает времени",
+      "🔧 Не хватает инструментов или ресурсов",
+      "😶 Нет мотивации, потерял смысл",
+      "✅ Особых препятствий нет"
+    ]
+  },
+  {
+    id: "manager",
+    type: "scale",
+    text: "Насколько вы чувствуете поддержку руководителя?",
+    hint: "1 — не чувствую совсем, 10 — полная поддержка",
+    min: "Не чувствую", max: "Полная поддержка"
+  },
+  {
+    id: "leave_risk",
+    type: "options",
+    text: "Думали ли вы о смене работы за последний месяц?",
+    hint: "",
+    options: [
+      "🙅 Нет, всё устраивает",
+      "🤔 Иногда мелькают мысли",
+      "😬 Думаю об этом довольно часто",
+      "🚪 Активно ищу другие варианты"
+    ]
+  },
+  {
+    id: "team_result",
+    type: "scale",
+    text: "Как вы оцениваете способность команды достигать результатов вместе?",
+    hint: "1 — каждый сам по себе, 10 — работаем как единое целое",
+    min: "Каждый сам по себе", max: "Единое целое"
+  },
+  {
+    id: "open_comment",
+    type: "text",
+    text: "Что, по-вашему, нужно изменить в первую очередь?",
+    hint: "Необязательно. Напишите что считаете важным — это анонимно.",
+    placeholder: "Можете написать свободно..."
+  }
+];
+
+let current = 0;
+let answers = {};
+
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const card = document.getElementById('questionCard');
+  const total = QUESTIONS.length;
+
+  document.getElementById('progressLabel').textContent = `Вопрос ${idx+1} из ${total}`;
+  document.getElementById('progressPct').textContent = Math.round((idx/total)*100) + '%';
+  document.getElementById('progressFill').style.width = (idx/total*100) + '%';
+  document.getElementById('btnBack').style.display = idx > 0 ? 'block' : 'none';
+  document.getElementById('btnNext').textContent = idx === total-1 ? 'Готово ✓' : 'Далее →';
+
+  let inner = `<div class="q-number">Вопрос ${idx+1}</div>
+               <div class="q-text">${q.text}</div>`;
+  if (q.hint) inner += `<div class="q-hint">${q.hint}</div>`;
+
+  if (q.type === 'scale') {
+    inner += `<div class="scale" id="scaleWrap">`;
+    for (let i = 1; i <= 10; i++) {
+      const sel = answers[q.id] == i ? 'selected' : '';
+      inner += `<button class="scale-btn ${sel}" onclick="selectScale('${q.id}',${i},this)">${i}</button>`;
+    }
+    inner += `</div><div class="scale-labels"><span>${q.min}</span><span>${q.max}</span></div>`;
+  } else if (q.type === 'options') {
+    inner += `<div class="options">`;
+    q.options.forEach((opt, i) => {
+      const sel = answers[q.id] === i ? 'selected' : '';
+      inner += `<button class="option-btn ${sel}" onclick="selectOption('${q.id}',${i},this)">${opt}</button>`;
+    });
+    inner += `</div>`;
+  } else if (q.type === 'text') {
+    inner += `<textarea class="q-textarea" id="textAnswer" placeholder="${q.placeholder||''}"
+               oninput="answers['${q.id}']=this.value">${answers[q.id]||''}</textarea>`;
+  }
+
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(12px)';
+  card.innerHTML = inner;
+  setTimeout(() => {
+    card.style.transition = 'all 0.3s ease';
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+  }, 20);
+
+  updateNextBtn();
+}
+
+function selectScale(id, val, el) {
+  answers[id] = val;
+  el.closest('.scale').querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  updateNextBtn();
+}
+
+function selectOption(id, idx, el) {
+  answers[id] = idx;
+  el.closest('.options').querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  updateNextBtn();
+}
+
+function updateNextBtn() {
+  const q = QUESTIONS[current];
+  const btn = document.getElementById('btnNext');
+  if (q.type === 'text') { btn.disabled = false; return; }
+  btn.disabled = answers[q.id] === undefined;
+}
+
+function nextQ() {
+  if (current < QUESTIONS.length - 1) {
+    current++;
+    renderQuestion(current);
+  } else {
+    showResults();
+  }
+}
+
+function prevQ() {
+  if (current > 0) { current--; renderQuestion(current); }
+}
+
+function showResults() {
+  document.getElementById('surveyScreen').style.display = 'none';
+  document.getElementById('progressWrap') && (document.getElementById('progressWrap').style.display = 'none');
+  document.getElementById('resultsScreen').style.display = 'block';
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressPct').textContent = '100%';
+  runAnalysis();
+}
+
+async function runAnalysis() {
+  const summaryText = buildSummary();
 
   try {
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
