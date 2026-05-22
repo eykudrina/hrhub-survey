@@ -405,6 +405,7 @@
   <div class="header">
     <div class="header-tag">Командный пульс</div>
     <h1>Как вам работается<br>в команде?</h1>
+    <p id="companyName" style="font-size:13px;color:var(--accent);font-weight:700;margin-bottom:4px"></p>
     <p>Честные ответы помогут руководителю принять правильные решения. Опрос займёт 3–5 минут.</p>
     <div class="anon-badge">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -742,6 +743,13 @@ function renderFallback() {
     <h3>✅ Ответы получены</h3>
     <div class="insight-item">Данные опроса собраны и готовы к анализу. Передайте результаты HR-специалисту для интерпретации.</div>
     <div style="margin-top:16px;font-size:13px;color:var(--muted)">Для автоматического анализа откройте страницу через claude.ai</div>`;
+}
+
+// Show company name
+const urlCompany = new URLSearchParams(window.location.search).get('company');
+if (urlCompany) {
+  const el = document.getElementById('companyName');
+  if (el) el.textContent = urlCompany;
 }
 
 // Init
