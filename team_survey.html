@@ -236,52 +236,57 @@ async function runAnalysis() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ answers: answers, company: company })
     });
-    const result = await resp.json();
-    renderAnalysis(result);
+    const data = await resp.json();
+    renderEmployeeResult(data.employee);
   } catch(e) {
     renderFallback();
   }
 }
 
-function renderAnalysis(result) {
-  document.getElementById('resultsSubtitle').textContent = 'Анализ готов. Результаты отправлены руководителю.';
-  const score = result.health_score || 50;
-  const color = score >= 67 ? '#27AE60' : score >= 34 ? '#F5A623' : '#E02020';
+function renderEmployeeResult(emp) {
+  if (!emp) { renderFallback(); return; }
+  document.getElementById('resultsSubtitle').textContent = '';
 
-  let html = `<div class="result-card">
-    <div class="result-title" style="color:${color}">📊 Индекс здоровья: ${score}/100</div>`;
+  let html = '';
 
-  if (result.metrics) {
-    result.metrics.forEach(m => {
-      const s = m.score;
-      const isRisk = m.name.includes('Риск');
-      const c = (isRisk ? s > 60 : s < 40) ? '#E02020' : (isRisk ? s > 30 : s < 65) ? '#F5A623' : '#27AE60';
-      html += `<div class="metric-row">
-        <div class="metric-name">${m.name}</div>
-        <div class="metric-bar-wrap"><div class="metric-bar"><div class="metric-bar-fill" style="width:${s}%;background:${c}"></div></div></div>
-        <div class="metric-score" style="color:${c}">${s}</div>
+  // Приветствие
+  if (emp.greeting) {
+    html += `<div class="result-card" style="border-left: 4px solid var(--orange);">
+      <div style="font-size:15px; line-height:1.7; color:#1a1a1a;">${emp.greeting}</div>
+    </div>`;
+  }
+
+  // Зоны
+  if (emp.zones && emp.zones.length) {
+    emp.zones.forEach(z => {
+      html += `<div class="result-card">
+        <div class="result-title" style="font-size:15px; margin-bottom:12px;">💛 ${z.title}</div>
+        <div style="font-size:13px; line-height:1.7; color:#333; margin-bottom:10px;">${z.signal}</div>
+        <div style="font-size:12px; background:#f7f4ef; border-radius:8px; padding:10px 14px; margin-bottom:10px; color:#555; line-height:1.6;">
+          <strong>Это нормально?</strong> ${z.benchmark}
+        </div>
+        <div style="font-size:13px; background:#FFF3EE; border-radius:8px; padding:10px 14px; color:#E8450A; line-height:1.6; border-left: 3px solid var(--orange);">
+          💡 ${z.advice}
+        </div>
       </div>`;
     });
   }
-  html += '</div>';
 
-  if (result.insights || result.summary) {
-    html += '<div class="result-card"><div class="result-title">💡 Выводы</div>';
-    const insights = result.insights || [result.summary];
-    insights.forEach(i => { html += `<div class="insight-item">${i}</div>`; });
-    html += '</div>';
+  // Закрытие
+  if (emp.closing) {
+    html += `<div class="result-card" style="background: linear-gradient(135deg, #fff9f6, #fff3ee); border: 1px solid #f0d5c8;">
+      <div style="font-size:14px; line-height:1.7; color:#555; text-align:center; font-style:italic;">${emp.closing}</div>
+    </div>`;
   }
 
-  if (result.priority_action) {
-    html += `<div class="result-card"><div class="priority-box"><div class="priority-label">⚡ Приоритетное действие</div><div class="priority-text">${result.priority_action}</div></div></div>`;
-  }
+  html += `<div style="text-align:center; margin-top:8px; font-size:12px; color:#aaa;">HR HUB · hrhub.team</div>`;
 
   document.getElementById('resultsContent').innerHTML = html;
 }
 
 function renderFallback() {
-  document.getElementById('resultsSubtitle').textContent = 'Ответы получены и переданы руководителю.';
-  document.getElementById('resultsContent').innerHTML = `<div class="result-card"><div class="insight-item">✅ Ваши ответы успешно записаны. Руководитель получит результаты в ближайшее время.</div></div>`;
+  document.getElementById('resultsSubtitle').textContent = 'Ответы получены.';
+  document.getElementById('resultsContent').innerHTML = `<div class="result-card"><div class="insight-item">✅ Спасибо за честность. Твои ответы помогут сделать команду лучше.</div></div>`;
 }
 
 renderQuestion(0);
