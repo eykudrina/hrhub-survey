@@ -80,7 +80,9 @@ def analyze():
             json={"chat_id": TELEGRAM_CHAT_ID, "text": msg[:4000]}
         )
     except Exception as e:
-        print(f"TG error: {e}")
+    print(f"TG error: {e}", flush=True)
+    import traceback
+    traceback.print_exc()
 
     resp = jsonify(result)
     resp.headers["Access-Control-Allow-Origin"] = "*"
