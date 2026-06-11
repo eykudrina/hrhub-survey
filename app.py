@@ -68,7 +68,7 @@ def generate_manager_report(answers):
 Будь конкретным и честным. Не смягчай проблемы."""
 
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5",
         max_tokens=1000,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -102,7 +102,7 @@ def generate_employee_feedback(answers):
 Весь текст — не более 120 слов. Никаких заголовков и маркеров списка."""
 
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5",
         max_tokens=500,
         messages=[{"role": "user", "content": prompt}]
     )
