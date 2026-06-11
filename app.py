@@ -232,10 +232,8 @@ def team_report(company_code):
         all_answers = [json.loads(row[0]) for row in rows]
         report = generate_team_report(all_answers, company_code)
 
-        from flask import Response
-import json as json_module
-response_data = json_module.dumps({"status": "ok", "company": company_code, "count": len(all_answers), "report": report}, ensure_ascii=False)
-return Response(response_data, content_type="application/json; charset=utf-8")
+        resp_data = json.dumps({"status": "ok", "company": company_code, "count": len(all_answers), "report": report}, ensure_ascii=False)
+        return app.response_class(resp_data, content_type="application/json; charset=utf-8")
 
     except Exception as e:
         print(f"Error: {e}")
