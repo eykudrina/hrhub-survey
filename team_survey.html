@@ -1,295 +1,547 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Анонимный опрос команды — HR HUB</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --orange: #E8450A;
-  --orange-light: #FFF3EE;
-  --green: #27AE60;
-  --green-light: #F0FFF6;
-  --red: #E02020;
-  --bg: #f7f4ef;
-  --card: #ffffff;
-  --border: #e8e2d9;
-  --text: #1a1a1a;
-  --muted: #7a7a7a;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: var(--bg); font-family: 'Onest', sans-serif; color: var(--text); min-height: 100vh; padding: 40px 20px 80px; }
-body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--orange), #FF6B35); }
-.container { max-width: 600px; margin: 0 auto; }
-.header { text-align: center; margin-bottom: 40px; }
-.brand { font-family: 'Unbounded', sans-serif; font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
-.header h1 { font-family: 'Unbounded', sans-serif; font-size: 26px; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
-.header p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
-.company-name { font-size: 13px; font-weight: 700; color: var(--orange); margin-bottom: 8px; }
-.anon-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--green-light); border: 1px solid #A8EDCA; color: var(--green); font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 20px; }
-.progress-wrap { margin-bottom: 32px; }
-.progress-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-.progress-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #FF6B35); border-radius: 4px; transition: width 0.4s ease; width: 0%; }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 28px; margin-bottom: 20px; box-shadow: 0 2px 20px rgba(0,0,0,0.04); }
-.q-number { font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
-.q-text { font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 600; line-height: 1.4; margin-bottom: 8px; }
-.q-hint { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
-.scale { display: flex; gap: 6px; margin-bottom: 10px; }
-.scale-btn { flex: 1; aspect-ratio: 1; border: 2px solid var(--border); border-radius: 10px; background: none; cursor: pointer; font-family: 'Onest', sans-serif; font-size: 15px; font-weight: 600; color: var(--muted); transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
-.scale-btn:hover { border-color: var(--orange); color: var(--orange); }
-.scale-btn.selected { border-color: var(--orange); background: var(--orange); color: white; box-shadow: 0 4px 12px rgba(232,69,10,0.25); }
-.scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
-.options { display: flex; flex-direction: column; gap: 10px; }
-.option-btn { padding: 13px 16px; border: 2px solid var(--border); border-radius: 12px; background: none; cursor: pointer; font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 500; color: var(--text); text-align: left; transition: all 0.15s; line-height: 1.4; }
-.option-btn:hover { border-color: var(--orange); background: var(--orange-light); }
-.option-btn.selected { border-color: var(--orange); background: var(--orange-light); color: var(--orange); font-weight: 600; }
-.q-textarea { width: 100%; min-height: 90px; padding: 12px 14px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Onest', sans-serif; font-size: 13px; color: var(--text); background: var(--bg); resize: vertical; outline: none; transition: border-color 0.2s; line-height: 1.6; }
-.q-textarea:focus { border-color: var(--orange); }
-.nav { display: flex; gap: 12px; margin-top: 8px; }
-.btn-back { padding: 13px 22px; border: 2px solid var(--border); border-radius: 12px; background: none; font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.15s; }
-.btn-back:hover { border-color: var(--orange); color: var(--orange); }
-.btn-next { flex: 1; padding: 13px 22px; border: none; border-radius: 12px; background: var(--orange); font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700; color: white; cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px; }
-.btn-next:hover { background: #c73d08; transform: translateY(-1px); }
-.btn-next:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
-.results { display: none; }
-.result-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 28px; margin-bottom: 16px; box-shadow: 0 2px 20px rgba(0,0,0,0.04); }
-.result-title { font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-.metric-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.metric-row:last-child { border-bottom: none; }
-.metric-name { font-size: 13px; font-weight: 500; flex: 1; }
-.metric-bar-wrap { flex: 1; margin: 0 12px; }
-.metric-bar { height: 5px; background: var(--border); border-radius: 5px; overflow: hidden; }
-.metric-bar-fill { height: 100%; border-radius: 5px; transition: width 0.8s ease; }
-.metric-score { font-weight: 700; font-size: 14px; min-width: 40px; text-align: right; }
-.insight-item { padding: 12px 14px; background: var(--bg); border-radius: 10px; margin-bottom: 8px; font-size: 13px; line-height: 1.6; border-left: 3px solid var(--orange); }
-.priority-box { background: var(--orange); color: white; padding: 20px 24px; border-radius: 14px; margin-top: 16px; }
-.priority-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
-.priority-text { font-size: 14px; line-height: 1.6; font-weight: 500; }
-.loading { text-align: center; padding: 32px; color: var(--muted); }
-.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.thank-you { text-align: center; margin-bottom: 24px; }
-.thank-you h2 { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-.thank-you p { font-size: 14px; color: var(--muted); }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Опрос команды — HR HUB</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      color: #222;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #fff;
+      border-bottom: 3px solid #E8600A;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header .logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #E8600A;
+      letter-spacing: 1px;
+    }
+
+    .header .tagline {
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* SURVEY SCREEN */
+    #survey-screen {
+      max-width: 640px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .survey-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #111;
+    }
+
+    .survey-subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .question-block {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+
+    .question-number {
+      font-size: 12px;
+      color: #E8600A;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    /* Scale questions */
+    .scale-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .scale-options label {
+      cursor: pointer;
+    }
+
+    .scale-options input[type="radio"] {
+      display: none;
+    }
+
+    .scale-options .scale-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+      font-size: 15px;
+      font-weight: 600;
+      color: #555;
+      transition: all 0.15s;
+      background: #fafafa;
+    }
+
+    .scale-options input[type="radio"]:checked + .scale-btn {
+      border-color: #E8600A;
+      background: #E8600A;
+      color: #fff;
+    }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    /* Choice questions */
+    .choice-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .choice-options label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .choice-options input[type="radio"] {
+      display: none;
+    }
+
+    .choice-btn {
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+      font-size: 14px;
+      color: #333;
+      background: #fafafa;
+      transition: all 0.15s;
+      width: 100%;
+      text-align: left;
+    }
+
+    .choice-options input[type="radio"]:checked + .choice-btn {
+      border-color: #E8600A;
+      background: #fff5f0;
+      color: #E8600A;
+      font-weight: 600;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: #E8600A;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.15s;
+    }
+
+    .submit-btn:hover { background: #c94f06; }
+    .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    .anon-note {
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 12px;
+    }
+
+    /* LOADING SCREEN */
+    #loading-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #f0f0f0;
+      border-top: 4px solid #E8600A;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin-bottom: 24px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 16px;
+      color: #666;
+    }
+
+    /* FEEDBACK SCREEN */
+    #feedback-screen {
+      display: none;
+      max-width: 580px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+      text-align: center;
+    }
+
+    .feedback-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .feedback-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 24px;
+    }
+
+    .feedback-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      text-align: left;
+      line-height: 1.7;
+      font-size: 15px;
+      color: #333;
+      border-left: 4px solid #E8600A;
+    }
+
+    .feedback-footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    /* ERROR */
+    #error-screen {
+      display: none;
+      max-width: 480px;
+      margin: 60px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .error-text {
+      font-size: 15px;
+      color: #c0392b;
+      margin-bottom: 16px;
+    }
+
+    .retry-btn {
+      padding: 12px 24px;
+      background: #E8600A;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <div class="brand">HR HUB</div>
-    <h1>Как вам работается в команде?</h1>
-    <div class="company-name" id="companyDisplay"></div>
-    <p>Честные ответы помогут руководителю принять правильные решения. Займёт 3–5 минут.</p>
-    <div class="anon-badge">🔒 Полностью анонимно — имена не собираются</div>
-  </div>
 
-  <div class="progress-wrap">
-    <div class="progress-top">
-      <span id="progressLabel">Вопрос 1 из 10</span>
-      <span id="progressPct">0%</span>
-    </div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-  </div>
-
-  <div id="surveyScreen">
-    <div class="card" id="questionCard"></div>
-    <div class="nav">
-      <button class="btn-back" id="btnBack" onclick="prevQ()" style="display:none">← Назад</button>
-      <button class="btn-next" id="btnNext" onclick="nextQ()">Далее →</button>
-    </div>
-  </div>
-
-  <div class="results" id="resultsScreen">
-    <div class="thank-you">
-      <h2>Спасибо за честность 🙏</h2>
-      <p id="resultsSubtitle">Анализирую ответы...</p>
-    </div>
-    <div id="resultsContent">
-      <div class="result-card">
-        <div class="loading"><div class="spinner"></div><p>Готовлю анализ для руководителя...</p></div>
-      </div>
-    </div>
+<div class="header">
+  <div>
+    <div class="logo">HR HUB</div>
+    <div class="tagline">Опрос здоровья команды</div>
   </div>
 </div>
 
+<!-- SURVEY -->
+<div id="survey-screen">
+  <div style="max-width:640px; margin: 40px auto; padding: 0 20px;">
+    <div class="survey-title">Анонимный опрос команды</div>
+    <div class="survey-subtitle">Ваши ответы помогут улучшить работу команды. Опрос анонимный — руководитель видит только общую картину, не индивидуальные ответы.</div>
+
+    <form id="survey-form">
+
+      <!-- Q1 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 1 из 11</div>
+        <div class="question-text">Как вы оцениваете свой уровень энергии и мотивации на работе прямо сейчас?</div>
+        <div class="scale-options" id="q1">
+          <label><input type="radio" name="q1" value="1"><span class="scale-btn">1</span></label>
+          <label><input type="radio" name="q1" value="2"><span class="scale-btn">2</span></label>
+          <label><input type="radio" name="q1" value="3"><span class="scale-btn">3</span></label>
+          <label><input type="radio" name="q1" value="4"><span class="scale-btn">4</span></label>
+          <label><input type="radio" name="q1" value="5"><span class="scale-btn">5</span></label>
+          <label><input type="radio" name="q1" value="6"><span class="scale-btn">6</span></label>
+          <label><input type="radio" name="q1" value="7"><span class="scale-btn">7</span></label>
+          <label><input type="radio" name="q1" value="8"><span class="scale-btn">8</span></label>
+          <label><input type="radio" name="q1" value="9"><span class="scale-btn">9</span></label>
+          <label><input type="radio" name="q1" value="10"><span class="scale-btn">10</span></label>
+        </div>
+        <div class="scale-labels"><span>Совсем нет</span><span>На максимуме</span></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 2 из 11</div>
+        <div class="question-text">Насколько чётко вы понимаете свои задачи и приоритеты на ближайшее время?</div>
+        <div class="scale-options" id="q2">
+          <label><input type="radio" name="q2" value="1"><span class="scale-btn">1</span></label>
+          <label><input type="radio" name="q2" value="2"><span class="scale-btn">2</span></label>
+          <label><input type="radio" name="q2" value="3"><span class="scale-btn">3</span></label>
+          <label><input type="radio" name="q2" value="4"><span class="scale-btn">4</span></label>
+          <label><input type="radio" name="q2" value="5"><span class="scale-btn">5</span></label>
+          <label><input type="radio" name="q2" value="6"><span class="scale-btn">6</span></label>
+          <label><input type="radio" name="q2" value="7"><span class="scale-btn">7</span></label>
+          <label><input type="radio" name="q2" value="8"><span class="scale-btn">8</span></label>
+          <label><input type="radio" name="q2" value="9"><span class="scale-btn">9</span></label>
+          <label><input type="radio" name="q2" value="10"><span class="scale-btn">10</span></label>
+        </div>
+        <div class="scale-labels"><span>Полный туман</span><span>Полная ясность</span></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 3 из 11</div>
+        <div class="question-text">Как вы оцениваете свою текущую загруженность?</div>
+        <div class="choice-options">
+          <label><input type="radio" name="q3" value="Недогружен, есть ресурс брать больше"><span class="choice-btn">Недогружен, есть ресурс брать больше</span></label>
+          <label><input type="radio" name="q3" value="Оптимальная нагрузка, справляюсь комфортно"><span class="choice-btn">Оптимальная нагрузка, справляюсь комфортно</span></label>
+          <label><input type="radio" name="q3" value="Высокая нагрузка, но держусь"><span class="choice-btn">Высокая нагрузка, но держусь</span></label>
+          <label><input type="radio" name="q3" value="Перегружен, задачи накапливаются"><span class="choice-btn">Перегружен, задачи накапливаются</span></label>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 4 из 11</div>
+        <div class="question-text">Как вы оцениваете атмосферу и отношения внутри вашей команды?</div>
+        <div class="scale-options">
+          <label><input type="radio" name="q4" value="1"><span class="scale-btn">1</span></label>
+          <label><input type="radio" name="q4" value="2"><span class="scale-btn">2</span></label>
+          <label><input type="radio" name="q4" value="3"><span class="scale-btn">3</span></label>
+          <label><input type="radio" name="q4" value="4"><span class="scale-btn">4</span></label>
+          <label><input type="radio" name="q4" value="5"><span class="scale-btn">5</span></label>
+          <label><input type="radio" name="q4" value="6"><span class="scale-btn">6</span></label>
+          <label><input type="radio" name="q4" value="7"><span class="scale-btn">7</span></label>
+          <label><input type="radio" name="q4" value="8"><span class="scale-btn">8</span></label>
+          <label><input type="radio" name="q4" value="9"><span class="scale-btn">9</span></label>
+          <label><input type="radio" name="q4" value="10"><span class="scale-btn">10</span></label>
+        </div>
+        <div class="scale-labels"><span>Напряжённая</span><span>Отличная</span></div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 5 из 11</div>
+        <div class="question-text">Получаете ли вы достаточно обратной связи от руководителя?</div>
+        <div class="choice-options">
+          <label><input type="radio" name="q5" value="Да, регулярно и по делу"><span class="choice-btn">Да, регулярно и по делу</span></label>
+          <label><input type="radio" name="q5" value="Иногда, хотелось бы чаще"><span class="choice-btn">Иногда, хотелось бы чаще</span></label>
+          <label><input type="radio" name="q5" value="Редко, в основном узнаю сам"><span class="choice-btn">Редко, в основном узнаю сам</span></label>
+          <label><input type="radio" name="q5" value="Практически нет обратной связи"><span class="choice-btn">Практически нет обратной связи</span></label>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 6 из 11</div>
+        <div class="question-text">Насколько вы понимаете, как ваша работа влияет на результат всей компании?</div>
+        <div class="scale-options">
+          <label><input type="radio" name="q6" value="1"><span class="scale-btn">1</span></label>
+          <label><input type="radio" name="q6" value="2"><span class="scale-btn">2</span></label>
+          <label><input type="radio" name="q6" value="3"><span class="scale-btn">3</span></label>
+          <label><input type="radio" name="q6" value="4"><span class="scale-btn">4</span></label>
+          <label><input type="radio" name="q6" value="5"><span class="scale-btn">5</span></label>
+          <label><input type="radio" name="q6" value="6"><span class="scale-btn">6</span></label>
+          <label><input type="radio" name="q6" value="7"><span class="scale-btn">7</span></label>
+          <label><input type="radio" name="q6" value="8"><span class="scale-btn">8</span></label>
+          <label><input type="radio" name="q6" value="9"><span class="scale-btn">9</span></label>
+          <label><input type="radio" name="q6" value="10"><span class="scale-btn">10</span></label>
+        </div>
+        <div class="scale-labels"><span>Совсем не понимаю</span><span>Понимаю чётко</span></div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 7 из 11</div>
+        <div class="question-text">Есть ли у вас всё необходимое для качественного выполнения задач?</div>
+        <div class="choice-options">
+          <label><input type="radio" name="q7" value="Да, всё есть"><span class="choice-btn">Да, всё есть</span></label>
+          <label><input type="radio" name="q7" value="В целом да, но есть мелкие пробелы"><span class="choice-btn">В целом да, но есть мелкие пробелы</span></label>
+          <label><input type="radio" name="q7" value="Не хватает инструментов или информации"><span class="choice-btn">Не хватает инструментов или информации</span></label>
+          <label><input type="radio" name="q7" value="Существенно не хватает ресурсов"><span class="choice-btn">Существенно не хватает ресурсов</span></label>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 8 из 11</div>
+        <div class="question-text">Как вы оцениваете свои перспективы роста в компании?</div>
+        <div class="scale-options">
+          <label><input type="radio" name="q8" value="1"><span class="scale-btn">1</span></label>
+          <label><input type="radio" name="q8" value="2"><span class="scale-btn">2</span></label>
+          <label><input type="radio" name="q8" value="3"><span class="scale-btn">3</span></label>
+          <label><input type="radio" name="q8" value="4"><span class="scale-btn">4</span></label>
+          <label><input type="radio" name="q8" value="5"><span class="scale-btn">5</span></label>
+          <label><input type="radio" name="q8" value="6"><span class="scale-btn">6</span></label>
+          <label><input type="radio" name="q8" value="7"><span class="scale-btn">7</span></label>
+          <label><input type="radio" name="q8" value="8"><span class="scale-btn">8</span></label>
+          <label><input type="radio" name="q8" value="9"><span class="scale-btn">9</span></label>
+          <label><input type="radio" name="q8" value="10"><span class="scale-btn">10</span></label>
+        </div>
+        <div class="scale-labels"><span>Перспектив нет</span><span>Отличные</span></div>
+      </div>
+
+      <!-- Q9 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 9 из 11</div>
+        <div class="question-text">Насколько вы удовлетворены своей работой в целом прямо сейчас?</div>
+        <div class="scale-options">
+          <label><input type="radio" name="q9" value="1"><span class="scale-btn">1</span></label>
+          <label><input type="radio" name="q9" value="2"><span class="scale-btn">2</span></label>
+          <label><input type="radio" name="q9" value="3"><span class="scale-btn">3</span></label>
+          <label><input type="radio" name="q9" value="4"><span class="scale-btn">4</span></label>
+          <label><input type="radio" name="q9" value="5"><span class="scale-btn">5</span></label>
+          <label><input type="radio" name="q9" value="6"><span class="scale-btn">6</span></label>
+          <label><input type="radio" name="q9" value="7"><span class="scale-btn">7</span></label>
+          <label><input type="radio" name="q9" value="8"><span class="scale-btn">8</span></label>
+          <label><input type="radio" name="q9" value="9"><span class="scale-btn">9</span></label>
+          <label><input type="radio" name="q9" value="10"><span class="scale-btn">10</span></label>
+        </div>
+        <div class="scale-labels"><span>Совсем нет</span><span>Полностью доволен</span></div>
+      </div>
+
+      <!-- Q10 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 10 из 11</div>
+        <div class="question-text">Рассматриваете ли вы сейчас другие предложения о работе?</div>
+        <div class="choice-options">
+          <label><input type="radio" name="q10" value="Нет, меня всё устраивает"><span class="choice-btn">Нет, меня всё устраивает</span></label>
+          <label><input type="radio" name="q10" value="Пассивно слежу за рынком"><span class="choice-btn">Пассивно слежу за рынком</span></label>
+          <label><input type="radio" name="q10" value="Есть несколько интересных вариантов"><span class="choice-btn">Есть несколько интересных вариантов</span></label>
+          <label><input type="radio" name="q10" value="Активно ищу новое место"><span class="choice-btn">Активно ищу новое место</span></label>
+        </div>
+      </div>
+
+      <!-- Q11 -->
+      <div class="question-block">
+        <div class="question-number">Вопрос 11 из 11</div>
+        <div class="question-text">Что для вас важнее всего в работе прямо сейчас?</div>
+        <div class="choice-options">
+          <label><input type="radio" name="q11" value="Рост и развитие — новые навыки, карьера"><span class="choice-btn">Рост и развитие — новые навыки, карьера</span></label>
+          <label><input type="radio" name="q11" value="Стабильность — предсказуемость и надёжность"><span class="choice-btn">Стабильность — предсказуемость и надёжность</span></label>
+          <label><input type="radio" name="q11" value="Признание — видеть, что моя работа ценится"><span class="choice-btn">Признание — видеть, что моя работа ценится</span></label>
+          <label><input type="radio" name="q11" value="Смысл — понимать зачем я это делаю"><span class="choice-btn">Смысл — понимать зачем я это делаю</span></label>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">Отправить ответы</button>
+      <p class="anon-note">🔒 Опрос полностью анонимный</p>
+
+    </form>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="spinner"></div>
+  <div class="loading-text">Обрабатываем ваши ответы...</div>
+</div>
+
+<!-- FEEDBACK -->
+<div id="feedback-screen">
+  <div class="feedback-icon">✅</div>
+  <div class="feedback-title">Спасибо, что ответили честно</div>
+  <div class="feedback-card" id="feedback-text"></div>
+  <div class="feedback-footer">🔒 Ваши ответы анонимны. Руководитель видит только общую картину по команде.</div>
+</div>
+
+<!-- ERROR -->
+<div id="error-screen">
+  <div class="feedback-icon">⚠️</div>
+  <p class="error-text" id="error-text">Что-то пошло не так. Попробуйте ещё раз.</p>
+  <button class="retry-btn" onclick="location.reload()">Попробовать снова</button>
+</div>
+
 <script>
-const QUESTIONS = [
-  { id: "energy", type: "scale", text: "Как вы оцениваете свою энергию и желание работать последние 2 недели?", hint: "1 — полностью выгорел, 10 — на подъёме", min: "Полностью выгорел", max: "На подъёме" },
-  { id: "clarity", type: "scale", text: "Насколько вам понятны ваши задачи и зоны ответственности?", hint: "1 — полная неразбериха, 10 — всё чётко", min: "Полная неразбериха", max: "Всё чётко" },
-  { id: "overload", type: "options", text: "Как вы оцениваете свою загрузку прямо сейчас?", hint: "", options: ["😴 Недогружен — есть время и силы", "✅ В норме — справляюсь комфортно", "⚡ Немного перегружен, но терпимо", "🔥 Серьёзный перегруз, не успеваю", "💥 На пределе, срочно нужна помощь"] },
-  { id: "communication", type: "scale", text: "Насколько комфортна коммуникация внутри команды?", hint: "1 — постоянные конфликты, 10 — открыто и уважительно", min: "Конфликты", max: "Открыто и уважительно" },
-  { id: "recognition", type: "options", text: "Чувствуете ли вы, что ваш вклад замечают и ценят?", hint: "", options: ["✅ Да, регулярно", "🤷 Иногда, но хотелось бы чаще", "❌ Практически никогда", "😶 Мне это не важно"] },
-  { id: "obstacles", type: "options", text: "Что больше всего мешает вам работать эффективно?", hint: "Выберите главное", options: ["😵 Непонятные задачи и постоянные изменения", "🗣 Конфликты или напряжение в команде", "⏰ Слишком много задач, не хватает времени", "🔧 Не хватает инструментов или ресурсов", "😶 Нет мотивации, потерял смысл", "✅ Особых препятствий нет"] },
-  { id: "manager", type: "scale", text: "Насколько вы чувствуете поддержку руководителя?", hint: "1 — не чувствую совсем, 10 — полная поддержка", min: "Не чувствую", max: "Полная поддержка" },
-  { id: "leave_risk", type: "options", text: "Думали ли вы о смене работы за последний месяц?", hint: "", options: ["🙅 Нет, всё устраивает", "🤔 Иногда мелькают мысли", "😬 Думаю об этом довольно часто", "🚪 Активно ищу другие варианты"] },
-  { id: "team_result", type: "scale", text: "Как вы оцениваете способность команды достигать результатов вместе?", hint: "1 — каждый сам по себе, 10 — работаем как единое целое", min: "Каждый сам по себе", max: "Единое целое" },
-  { id: "open_comment", type: "text", text: "Что, по-вашему, нужно изменить в первую очередь?", hint: "Необязательно. Напишите что считаете важным — это анонимно.", placeholder: "Можете написать свободно..." }
-];
+  const BACKEND_URL = "https://hrhub-survey-production-e84f.up.railway.app";
 
-let current = 0;
-let answers = {};
-const company = new URLSearchParams(window.location.search).get('company') || '';
+  document.getElementById("survey-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
 
-// Show company name
-if (company) {
-  document.getElementById('companyDisplay').textContent = company;
-}
-
-function renderQuestion(idx) {
-  const q = QUESTIONS[idx];
-  const total = QUESTIONS.length;
-  const pct = Math.round((idx / total) * 100);
-
-  document.getElementById('progressLabel').textContent = `Вопрос ${idx+1} из ${total}`;
-  document.getElementById('progressPct').textContent = pct + '%';
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('btnBack').style.display = idx > 0 ? 'block' : 'none';
-  document.getElementById('btnNext').textContent = idx === total-1 ? 'Готово ✓' : 'Далее →';
-
-  let html = `<div class="q-number">Вопрос ${idx+1}</div><div class="q-text">${q.text}</div>`;
-  if (q.hint) html += `<div class="q-hint">${q.hint}</div>`;
-
-  if (q.type === 'scale') {
-    html += '<div class="scale">';
-    for (let i = 1; i <= 10; i++) {
-      const sel = answers[q.id] == i ? 'selected' : '';
-      html += `<button class="scale-btn ${sel}" onclick="selectScale('${q.id}',${i},this)">${i}</button>`;
+    // Собираем ответы
+    const answers = [];
+    for (let i = 1; i <= 11; i++) {
+      const val = document.querySelector(`input[name="q${i}"]:checked`);
+      if (!val) {
+        alert(`Пожалуйста, ответьте на вопрос ${i}`);
+        return;
+      }
+      answers.push(val.value);
     }
-    html += `</div><div class="scale-labels"><span>${q.min}</span><span>${q.max}</span></div>`;
-  } else if (q.type === 'options') {
-    html += '<div class="options">';
-    q.options.forEach((opt, i) => {
-      const sel = answers[q.id] === i ? 'selected' : '';
-      html += `<button class="option-btn ${sel}" onclick="selectOption('${q.id}',${i},this)">${opt}</button>`;
-    });
-    html += '</div>';
-  } else if (q.type === 'text') {
-    html += `<textarea class="q-textarea" id="textAnswer" placeholder="${q.placeholder||''}" oninput="answers['${q.id}']=this.value">${answers[q.id]||''}</textarea>`;
-  }
 
-  const card = document.getElementById('questionCard');
-  card.style.opacity = '0';
-  card.innerHTML = html;
-  setTimeout(() => { card.style.transition = 'opacity 0.3s'; card.style.opacity = '1'; }, 20);
-  updateBtn();
-}
+    // Показываем лоадер
+    document.getElementById("survey-screen").style.display = "none";
+    document.getElementById("loading-screen").style.display = "flex";
 
-function selectScale(id, val, el) {
-  answers[id] = val;
-  el.closest('.scale').querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  updateBtn();
-}
+    try {
+      const response = await fetch(`${BACKEND_URL}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers })
+      });
 
-function selectOption(id, idx, el) {
-  answers[id] = idx;
-  el.closest('.options').querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  updateBtn();
-}
+      const data = await response.json();
 
-function updateBtn() {
-  const q = QUESTIONS[current];
-  const btn = document.getElementById('btnNext');
-  btn.disabled = q.type !== 'text' && answers[q.id] === undefined;
-}
+      if (data.status === "ok" && data.feedback) {
+        document.getElementById("loading-screen").style.display = "none";
+        document.getElementById("feedback-text").innerText = data.feedback;
+        document.getElementById("feedback-screen").style.display = "block";
+      } else {
+        throw new Error(data.error || "Неизвестная ошибка");
+      }
 
-function nextQ() {
-  if (current < QUESTIONS.length - 1) { current++; renderQuestion(current); }
-  else { showResults(); }
-}
-
-function prevQ() {
-  if (current > 0) { current--; renderQuestion(current); }
-}
-
-function buildSummary() {
-  const qs = QUESTIONS;
-  const a = answers;
-  return `Компания: ${company || 'не указана'}
-Энергия (1-10): ${a.energy ?? '—'}
-Ясность задач (1-10): ${a.clarity ?? '—'}
-Загрузка: ${a.overload !== undefined ? qs[2].options[a.overload] : '—'}
-Коммуникация (1-10): ${a.communication ?? '—'}
-Признание: ${a.recognition !== undefined ? qs[4].options[a.recognition] : '—'}
-Препятствие: ${a.obstacles !== undefined ? qs[5].options[a.obstacles] : '—'}
-Поддержка руководителя (1-10): ${a.manager ?? '—'}
-Риск ухода: ${a.leave_risk !== undefined ? qs[7].options[a.leave_risk] : '—'}
-Эффективность команды (1-10): ${a.team_result ?? '—'}
-Комментарий: ${a.open_comment || 'не оставил'}`;
-}
-
-function showResults() {
-  document.getElementById('surveyScreen').style.display = 'none';
-  document.getElementById('resultsScreen').style.display = 'block';
-  document.getElementById('progressFill').style.width = '100%';
-  document.getElementById('progressPct').textContent = '100%';
-  runAnalysis();
-}
-
-async function runAnalysis() {
-  try {
-    const resp = await fetch("https://hrhub-survey-production-e84f.up.railway.app/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers: answers, company: company })
-    });
-    const data = await resp.json();
-    renderEmployeeResult(data.employee);
-  } catch(e) {
-    renderFallback();
-  }
-}
-
-function renderEmployeeResult(emp) {
-  if (!emp) { renderFallback(); return; }
-  document.getElementById('resultsSubtitle').textContent = '';
-
-  let html = '';
-
-  // Приветствие
-  if (emp.greeting) {
-    html += `<div class="result-card" style="border-left: 4px solid var(--orange);">
-      <div style="font-size:15px; line-height:1.7; color:#1a1a1a;">${emp.greeting}</div>
-    </div>`;
-  }
-
-  // Зоны
-  if (emp.zones && emp.zones.length) {
-    emp.zones.forEach(z => {
-      html += `<div class="result-card">
-        <div class="result-title" style="font-size:15px; margin-bottom:12px;">💛 ${z.title}</div>
-        <div style="font-size:13px; line-height:1.7; color:#333; margin-bottom:10px;">${z.signal}</div>
-        <div style="font-size:12px; background:#f7f4ef; border-radius:8px; padding:10px 14px; margin-bottom:10px; color:#555; line-height:1.6;">
-          <strong>Это нормально?</strong> ${z.benchmark}
-        </div>
-        <div style="font-size:13px; background:#FFF3EE; border-radius:8px; padding:10px 14px; color:#E8450A; line-height:1.6; border-left: 3px solid var(--orange);">
-          💡 ${z.advice}
-        </div>
-      </div>`;
-    });
-  }
-
-  // Закрытие
-  if (emp.closing) {
-    html += `<div class="result-card" style="background: linear-gradient(135deg, #fff9f6, #fff3ee); border: 1px solid #f0d5c8;">
-      <div style="font-size:14px; line-height:1.7; color:#555; text-align:center; font-style:italic;">${emp.closing}</div>
-    </div>`;
-  }
-
-  html += `<div style="text-align:center; margin-top:8px; font-size:12px; color:#aaa;">HR HUB · hrhub.team</div>`;
-
-  document.getElementById('resultsContent').innerHTML = html;
-}
-
-function renderFallback() {
-  document.getElementById('resultsSubtitle').textContent = 'Ответы получены.';
-  document.getElementById('resultsContent').innerHTML = `<div class="result-card"><div class="insight-item">✅ Спасибо за честность. Твои ответы помогут сделать команду лучше.</div></div>`;
-}
-
-renderQuestion(0);
+    } catch (err) {
+      document.getElementById("loading-screen").style.display = "none";
+      document.getElementById("error-text").innerText = `Ошибка: ${err.message}`;
+      document.getElementById("error-screen").style.display = "block";
+    }
+  });
 </script>
+
 </body>
 </html>
